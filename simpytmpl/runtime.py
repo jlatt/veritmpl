@@ -1,6 +1,7 @@
 class Template(object):
 
-    filter = None
+    def filter(self, value, out):
+        out.write(value)
 
     def __init__(self, **kwargs):
         self.env = kwargs
@@ -36,6 +37,6 @@ class Template(object):
             else:
                 value = unicode(value)
 
-            out.write(self.filter(value) if self.filter else value)
+            self.filter(value, self.out)
 
         return self
