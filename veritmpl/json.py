@@ -3,7 +3,7 @@ try:
 except ImportError:
     import simplejson as json
 
-from simpytmpl import runtime
+from veritmpl import runtime
 
 
 class JSON(runtime.Literal):

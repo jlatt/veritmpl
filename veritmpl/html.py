@@ -1,6 +1,6 @@
 from cgi import escape as html_escape
 
-from simpytmpl import runtime
+from veritmpl import runtime
 
 
 class HTML(runtime.Literal):
