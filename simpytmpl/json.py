@@ -3,10 +3,10 @@ try:
 except ImportError:
     import simplejson as json
 
-from simpytmpl import filters
+from simpytmpl import runtime
 
 
-class JSON(Literal):
+class JSON(runtime.Literal):
     pass
 
 
