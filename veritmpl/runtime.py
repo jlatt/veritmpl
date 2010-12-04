@@ -1,6 +1,8 @@
 class Template(object):
     EXHAUST_BYTES = 1024 * 1024
 
+    output_encode = unicode
+
     def __init__(self, **kwargs):
         self.env = kwargs
 
@@ -21,8 +23,6 @@ class Template(object):
         out = StringIO()
         self.render(out)
         return out.getvalue()
-
-    output_encode = unicode
 
     def encode(self, value, out):
         if value is not None:
