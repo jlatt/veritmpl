@@ -4,18 +4,36 @@ import re
 sub_regex = re.compile(r'(?<!\\){{\s*(?P<name>[_a-z]\w*)\s*}}', re.I | re.M)
 
 
-def compile_template(name, tokens, out=None):
+def ensure_stream(out=None):
     if out is None:
         import StringIO
         out = StringIO.StringIO()
+    return out
 
-    print >>out, 'class %s(runtime.Template):' % name
-    print >>out, '\tdef serialize(self, out):'
+
+def compile_module(names=None, out=None, base=None, imports=None):
+    imports = imports or ('import veritmpl.runtime',)
+    out = ensure_stream(out)
+    if imports:
+        for imp in imports:
+            print >>out, 'import %s' % imp
+    for name, tokens in names.iteritems():
+        print >>out
+        print >>out
+        compile_template(name, tokens, out, base)
+    return out
+
+
+def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
+    out = ensure_stream(out)
+
+    print >>out, 'class %s(%s):' % (name, base)
+    print >>out, '\tdef render(self, out):'
     for token_type, value in tokens:
         if token_type == 'literal':
             print >>out, '\t\tout.write(%r)' % value
         elif token_type == 'sub':
-            print >>out, '\t\tself.substitute(out, %r)' % value
+            print >>out, '\t\tself.substitute(%r, out)' % value
     print >>out, '\t\treturn out'
 
     return out
@@ -34,10 +52,21 @@ def parse(data):
 
 
 if __name__ == '__main__':
+    import optparse
+    import os
     import sys
 
 
-    data = sys.stdin.read()
-    tokens = parse(data)
-    output = compile_template(sys.argv[1], tokens)
-    print output.getvalue()
+    optparser = optparse.OptionParser()
+    optparser.add_option('-t', '--template', dest='template', help='Use a specific template class.', default=None)
+    optparser.add_option('-i', '--import', dest='imports', action='append')
+    (options, args) = optparser.parse_args()
+
+    def gen_tokens():
+        for fname in args:
+            class_name = os.path.basename(fname).rsplit('.', 1)[0].capitalize()
+            data = open(fname).read()
+            tokens = parse(data)
+            yield (class_name, tokens)
+    classes = dict(gen_tokens())
+    compile_module(names=classes, out=sys.stdout, base=options.template, imports=options.imports)

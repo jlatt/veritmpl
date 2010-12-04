@@ -10,7 +10,7 @@ class JSON(runtime.Literal):
     pass
 
 
-class JSONFilter(object):
+class JSONEncoder(object):
     def __init__(self, **kwargs):
         self.json_kwargs = kwargs
 
@@ -19,3 +19,7 @@ class JSONFilter(object):
             out.write(value)
         else:
             json.dump(value, out, **self.json_kwargs)
+
+
+class JSONTemplate(runtime.Template):
+    encode = JSONEncoder()

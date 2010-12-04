@@ -7,9 +7,9 @@ class HTML(runtime.Literal):
     pass
 
 
-class HTMLFilter(runtime.SimpleFilter):
-    filter_type = HTML
-    escape = html_escape
+class HTMLTemplate(runtime.Template):
+    def output_encode(self, value):
+        return html_escape(unicode(value))
 
 
 def attrs(*args, **kwargs):

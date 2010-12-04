@@ -2,7 +2,6 @@
 if __name__ == '__main__':
     import sys
 
-    import runtime
     import templates
 
 
@@ -12,4 +11,4 @@ if __name__ == '__main__':
             heading='Welcome to my template language.',
             )
         )
-    t.serialize(sys.stdout)
+    t.render(sys.stdout)
