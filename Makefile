@@ -21,4 +21,4 @@ unittest: $(python_unittests)
 	PYTHONPATH=$(PYTHONPATH) $(python) veritmpl/test/__init__.py
 
 
-.PHONY: clean test
+.PHONY: clean unittest
