@@ -11,7 +11,7 @@ class TestTemplate(unittest.TestCase):
 
     def tearDown(self):
         super(TestTemplate, self).tearDown()
-        self.t.close()
+        del self.t
 
     def get_encoded(self, value):
         out = StringIO()
