@@ -22,7 +22,7 @@ class Template(object):
 
     def __str__(self):
         """Stringify a template."""
-        return str(self.stringify())
+        return self.stringify().encode('utf-8')
 
     def __unicode__(self):
         """Render a template to a string."""
