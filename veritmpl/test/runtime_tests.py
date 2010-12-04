@@ -5,22 +5,34 @@ from veritmpl import runtime
 
 
 class TestTemplate(unittest.TestCase):
-    def setUp(self):
-        super(TestTemplate, self).setUp()
-        self.t = runtime.Template()
+    def test_init(self):
+        t = runtime.Template()
 
-    def tearDown(self):
-        super(TestTemplate, self).tearDown()
-        del self.t
-
-    def get_encoded(self, value):
+    def get_encoded(self, t, value):
         out = StringIO()
-        self.t.encode(value, out)
+        t.encode(value, out)
         return out.getvalue()
 
+    encode_tests = (
+        ('foo', 'foo'),
+        (5, '5'),
+        ('', ''),
+        (None, ''),
+        )
+
     def test_encode(self):
-        self.assertEqual(self.get_encoded('foo'), 'foo')
-        self.assertEqual(self.get_encoded(5), '5')
+        t = runtime.Template()
+        for s, expected in self.encode_tests:
+            self.assertEqual(self.get_encoded(t, s), expected)
+
+
+class TestLiteral(unittest.TestCase):
+    def test_init(self):
+        l = runtime.Literal()
+
+    def test_redundant_cast(self):
+        l = runtime.Literal()
+        self.assertEqual(l, runtime.Literal(l))
 
 
 if __name__ == '__main__':

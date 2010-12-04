@@ -72,4 +72,10 @@ class Literal(unicode):
 
     """
     def __new__(cls, s=u'', *args, **kwargs):
-        return s if isinstance(s, cls) else super(Literal, cls).__new__(s, *args, **kwargs)
+        if isinstance(s, cls):
+            return s
+        else:
+            return super(Literal, cls).__new__(cls, s, *args, **kwargs)
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, unicode(self))

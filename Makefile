@@ -18,7 +18,7 @@ examples/templates.py: $(example_templates)
 
 
 unittest: $(python_unittests)
-	PYTHONPATH=$(PYTHONPATH) $(python) veritmpl/test/__init__.py -v
+	@PYTHONPATH=$(PYTHONPATH) $(python) veritmpl/test/__init__.py -v
 
 
 .PHONY: clean unittest
