@@ -17,6 +17,9 @@ class Template(object):
         """
         self.env = kwargs
 
+    def __repr__(self):
+        return '%s(**%r)' % (self.__class__.__name__, self.env)
+
     def __str__(self):
         """Stringify a template."""
         return str(self.stringify())
@@ -25,7 +28,7 @@ class Template(object):
         """Render a template to a string."""
         from StringIO import StringIO
         out = StringIO()
-        self.render(out)
+        self.__call__(out)
         return out.getvalue()
 
     def __call__(self, out):
@@ -34,7 +37,7 @@ class Template(object):
         implemented by compiler-generated classes.
 
         """
-        raise NotImplementedError('%s.render' % self.__class__.__name__)
+        raise NotImplementedError('%s.__call__' % self.__class__.__name__)
 
     def encode(self, value, out):
         """Write a python object to the output stream."""
@@ -52,7 +55,7 @@ class Template(object):
         value = self.env.get(name)
 
         if isinstance(value, Template):
-            value.render(out)
+            value.__call__(out)
         elif hasattr(value, 'read') and callable(value.read): # TODO better file test?
             self.encode(value.read(), out)
         else:

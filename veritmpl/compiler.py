@@ -38,7 +38,7 @@ def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
     out = ensure_stream(out)
 
     print >>out, 'class %s(%s):' % (name, base)
-    print >>out, '\tdef render(self, out):'
+    print >>out, '\tdef __call__(self, out):'
     for token_type, value in tokens:
         if token_type == 'literal':
             print >>out, '\t\tout.write(%r)' % value
