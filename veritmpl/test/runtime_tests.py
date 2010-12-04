@@ -9,6 +9,10 @@ class TestTemplate(unittest.TestCase):
         super(TestTemplate, self).setUp()
         self.t = runtime.Template()
 
+    def tearDown(self):
+        super(TestTemplate, self).tearDown()
+        self.t.close()
+
     def get_encoded(self, value):
         out = StringIO()
         self.t.encode(value, out)
