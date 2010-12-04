@@ -5,6 +5,10 @@ sub_regex = re.compile(r'(?<!\\){{\s*(?P<name>[_a-z]\w*)\s*}}', re.I | re.M)
 
 
 def ensure_stream(out=None):
+    """Return a file-like object. If the argument is None, it will be a
+    StringIO instance.
+
+    """
     if out is None:
         import StringIO
         out = StringIO.StringIO()
@@ -12,6 +16,11 @@ def ensure_stream(out=None):
 
 
 def compile_module(names=None, out=None, base=None, imports=None):
+    """Compile a mapping from class names to token sequences into a module.
+    The function accepts an optional base template for all classes and an
+    optional sequence of imports.
+
+    """
     imports = imports or ('import veritmpl.runtime',)
     out = ensure_stream(out)
     if imports:
@@ -25,6 +34,7 @@ def compile_module(names=None, out=None, base=None, imports=None):
 
 
 def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
+    """Compile a name and token sequence into a class declaration."""
     out = ensure_stream(out)
 
     print >>out, 'class %s(%s):' % (name, base)
@@ -40,6 +50,7 @@ def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
 
 
 def parse(data):
+    """Parse a string into a Template."""
     position = 0
     for match in sub_regex.finditer(data):
         if match.start() > position:

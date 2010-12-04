@@ -4,15 +4,26 @@ from veritmpl import runtime
 
 
 class HTML(runtime.Literal):
+    """HTML is a Literal for HTML strings."""
     pass
 
 
 class HTMLTemplate(runtime.Template):
+    """HTMLTemplate is a Template that encodes strings as HTML
+    during rendering.
+
+    """
     def output_encode(self, value):
         return html_escape(unicode(value))
 
 
 def attrs(*args, **kwargs):
+    """Convert arguments into a string containing HTML attributes.
+    Positional arguments can be either strings or key-value tuples. Keyword
+    arguments map strings to values. Values may be strings, booleans, or
+    sequences of strings.
+
+    """
     attributes = {}
     for arg in args:
         if isinstance(tuple, arg):
@@ -38,6 +49,7 @@ def attrs(*args, **kwargs):
 
 
 def tag(name, *args, **kwargs):
+    """Output an HTML tag. Variable arguments are passed to attrs()."""
     attributes = attrs(*args, **kwargs)
     if attributes:
         return HTML('<%s %s>' % (name, attributes))

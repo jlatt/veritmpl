@@ -11,4 +11,4 @@ if __name__ == '__main__':
             heading='Welcome to my template language.',
             )
         )
-    t.render(sys.stdout)
+    t(sys.stdout)
