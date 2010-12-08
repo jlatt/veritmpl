@@ -37,6 +37,7 @@ def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
     """Compile a name and token sequence into a class declaration."""
     out = ensure_stream(out)
 
+    expected_kwargs = []
     print >>out, 'class %s(%s):' % (name, base)
     print >>out, '\tdef __call__(self, out):'
     for token_type, value in tokens:
@@ -44,7 +45,10 @@ def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
             print >>out, '\t\tout.write(%r)' % value
         elif token_type == 'sub':
             print >>out, '\t\tself.substitute(%r, out)' % value
+            expected_kwargs.append(value)
     print >>out, '\t\treturn out'
+    print >>out
+    print >>out, '\texpected_kwargs = %r' % (tuple(expected_kwargs),)
 
     return out
 
@@ -70,7 +74,7 @@ if __name__ == '__main__':
 
     optparser = optparse.OptionParser()
     optparser.add_option('-t', '--template', dest='template', help='Use a specific template class.', default=None)
-    optparser.add_option('-i', '--import', dest='imports', action='append')
+    optparser.add_option('-i', '--import', dest='imports', action='append', metavar='IMPORT', help='Import a path in the module. Multiple imports are allowed.')
     (options, args) = optparser.parse_args()
 
     def gen_tokens():

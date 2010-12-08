@@ -1,13 +1,12 @@
+import types
+
+
 class Template(object):
     """Template is the base class for all veritmpl templates.
     In order to be treated as templates during the rendering process, an object
     must inherit from this class.
 
     """
-    EXHAUST_BYTES = 1024 * 1024
-
-    output_encode = unicode
-
     expected_kwargs = tuple()
 
     def __init__(self, **kwargs):
@@ -42,9 +41,10 @@ class Template(object):
     def encode(self, value, out):
         """Write a python object to the output stream."""
         if value is not None:
-            encoded = self.output_encode(value)
+            encoded = unicode(value)
             if value:
                 out.write(encoded)
+        return self
 
     def substitute(self, name, out):
         """Perform variable substitution in the template from the keyword
@@ -53,14 +53,33 @@ class Template(object):
 
         """
         value = self.env.get(name)
+        self.substitute_value(value, out)
+        return self
 
+    def substitute_value(self, value, out):
+        """Substitute a value into the template output stream.
+        Templates and generators are recognized as special values.
+
+        """
         if isinstance(value, Template):
-            value.__call__(out)
-        elif hasattr(value, 'read') and callable(value.read): # TODO better file test?
-            self.encode(value.read(), out)
+            self.substitute_template(value, out)
+        elif isinstance(value, types.GeneratorType):
+            self.substitute_generator(value, out)
         else:
             self.encode(value, out)
+        return self
 
+    def substitute_template(self, template, out):
+        """Write a template to the output stream."""
+        template.__call__(out)
+        return self
+
+    def substitute_generator(self, generator, out):
+        """Exhaust a generator. Write its values to the template output.
+
+        """
+        for value in generator:
+            self.substitute_value(value, out)
         return self
 
 
