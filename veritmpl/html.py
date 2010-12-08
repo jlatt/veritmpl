@@ -54,8 +54,11 @@ def attrs(*args, **kwargs):
     """
     attributes = {}
     for arg in args:
-        if isinstance(tuple, arg):
-            attributes[arg[0]] = arg[1]
+        if isinstance(arg, tuple):
+            if len(arg) == 2:
+                attributes[arg[0]] = arg[1]
+            else:
+                raise Exception('illegal argument') # TODO more informative
         else:
             attributes[arg] = True
     attributes.update(kwargs)
@@ -74,3 +77,11 @@ def attrs(*args, **kwargs):
                     value = ' '.join([unicode(v) for v in value])
                 buf.append('%s="%s"' % (key, html_escape(unicode(value))))
     return HTML(' '.join(buf) if buf else '')
+
+def tag(name, *args, **kwargs):
+    """Output an HTML tag. Variable arguments are passed to attrs()."""
+    attributes = attrs(*args, **kwargs)
+    if attributes:
+        return HTML('<%s %s>' % (name, attributes))
+    else:
+        return HTML('<%s>' % name)
