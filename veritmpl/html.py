@@ -1,7 +1,16 @@
+# -*- coding: utf-8 -*-
+"""
+This module contains classes and functions for outputting HTML.
+
+"""
 import functools
 import re
 
 from veritmpl import runtime
+
+
+__author__ = 'Jeremy Latt <jeremy.latt@gmail.com>'
+__all__ = ('escape', 'HTMLTemplate', 'attrs', 'tag')
 
 
 class HTMLEscape(object):
@@ -10,8 +19,8 @@ class HTMLEscape(object):
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
-        u'\u00BB': '&raquo;',
-        u'\u00AB': '&laquo;',
+        '»': '&raquo;',
+        '«': '&laquo;',
         }
 
     entity_regex = re.compile('|'.join(map(re.escape, tr_table.iterkeys())), re.I)
@@ -24,7 +33,7 @@ class HTMLEscape(object):
         else:
             return s
 
-html_escape = HTMLEscape()
+escape = HTMLEscape()
 
 
 class HTML(runtime.Literal):
@@ -39,7 +48,7 @@ class HTMLTemplate(runtime.Template):
     """
     def encode(self, value, out):
         if value is not None:
-            encoded = html_escape(unicode(value))
+            encoded = escape(unicode(value))
             if value:
                 out.write(value)
         return self
@@ -75,8 +84,9 @@ def attrs(*args, **kwargs):
             else:
                 if isinstance(value, (list, tuple)):
                     value = ' '.join([unicode(v) for v in value])
-                buf.append('%s="%s"' % (key, html_escape(unicode(value))))
+                buf.append('%s="%s"' % (key, escape(unicode(value))))
     return HTML(' '.join(buf) if buf else '')
+
 
 def tag(name, *args, **kwargs):
     """Output an HTML tag. Variable arguments are passed to attrs()."""
