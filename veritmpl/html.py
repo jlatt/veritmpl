@@ -1,7 +1,30 @@
-from cgi import escape as html_escape
 import functools
+import re
 
 from veritmpl import runtime
+
+
+class HTMLEscape(object):
+    tr_table = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        u'\u00BB': '&raquo;',
+        u'\u00AB': '&laquo;',
+        }
+
+    entity_regex = re.compile('|'.join(map(re.escape, tr_table.iterkeys())), re.I)
+
+    escape_sub = lambda self, m: self.tr_table[m.group(0)]
+
+    def __call__(self, s):
+        if self.entity_regex.search(s):
+            return self.entity_regex.sub(self.escape_sub, s)
+        else:
+            return s
+
+html_escape = HTMLEscape()
 
 
 class HTML(runtime.Literal):
