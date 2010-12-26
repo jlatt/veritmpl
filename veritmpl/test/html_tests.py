@@ -30,13 +30,12 @@ class HTMLAttrsTestCase(unittest.TestCase):
 
     def test_lists(self):
         """Test conversion of lists/tuples to space-separated strings."""
-        self.assert_attrs('class="foo bar baz"', class_=['foo', 'bar', 'baz'])
         self.assert_attrs('class="foo bar baz"', class_=('foo', 'bar', 'baz'))
 
 
     def test_tag(self):
-        """Test tag generation. This is basically attrs(), so the test is
-        minor.
+        """Test tag generation.
+        This is basically attrs(), so the test is short.
 
         """
         self.assertEqual('<ol class="flat prefix">', html.tag('ol', class_=('flat', 'prefix')))

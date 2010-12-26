@@ -14,6 +14,14 @@ class CompilerTestCase(unittest.TestCase):
         tokens = list(tokens)
         self.assertEquals(len(tokens), 3)
 
+        tokens = compiler.parse('{{ foo }}bar')
+        tokens = list(tokens)
+        self.assertEquals(len(tokens), 2)
+
+        tokens = compiler.parse('foo{{ bar }}')
+        tokens = list(tokens)
+        self.assertEquals(len(tokens), 2)
+
     def test_compile_empty_template(self):
         """Test compilation of an empty token stream."""
         out = compiler.compile_template(class_name='Test', tokens=[])
