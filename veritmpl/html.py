@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains classes and functions for outputting HTML.
+"""This module contains classes and functions for outputting HTML.
 
 """
 import functools

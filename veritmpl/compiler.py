@@ -1,6 +1,10 @@
 import re
 
 
+__author__ = 'Jeremy Latt <jeremy.latt@gmail.com>'
+__all__ = ('compile_module', 'compile_template', 'parse')
+
+
 sub_regex = re.compile(r'(?<!\\){{\s*(?P<name>[_a-z]\w*)\s*}}', re.I | re.M)
 
 
@@ -15,40 +19,47 @@ def ensure_stream(out=None):
     return out
 
 
-def compile_module(names=None, out=None, base=None, imports=None):
+def compile_module(classes=None, out=None):
     """Compile a mapping from class names to token sequences into a module.
     The function accepts an optional base template for all classes and an
     optional sequence of imports.
 
     """
-    imports = imports or ('import veritmpl.runtime',)
     out = ensure_stream(out)
-    if imports:
-        for imp in imports:
-            print >>out, 'import %s' % imp
-    for name, tokens in names.iteritems():
+    for kwargs in classes:
+        compile_template(out=out, **kwargs)
         print >>out
         print >>out
-        compile_template(name, tokens, out, base)
     return out
 
 
-def compile_template(name, tokens, out=None, base='veritmpl.runtime.Template'):
+template_types = dict(
+    html='veritmpl.html.HTMLTemplate',
+    js='veritmpl.json.JSONTemplate',
+    json='veritmpl.json.JSONTemplate',
+    )
+
+
+def compile_template(class_name=None, tokens=None, template_type=None, out=None):
     """Compile a name and token sequence into a class declaration."""
     out = ensure_stream(out)
-
-    expected_kwargs = []
-    print >>out, 'class %s(%s):' % (name, base)
+    base_class = template_types.get(template_type, 'veritmpl.runtime.Template')
+    base_import, _ = base_class.rsplit('.', 1)
+    expected_kwargs = set()
+    print >>out, 'import %s' % base_import
+    print >>out
+    print >>out
+    print >>out, 'class %s(%s):' % (class_name, base_class)
     print >>out, '\tdef __call__(self, out):'
-    for token_type, value in tokens:
-        if token_type == 'literal':
-            print >>out, '\t\tout.write(%r)' % value
-        elif token_type == 'sub':
-            print >>out, '\t\tself.substitute(%r, out)' % value
-            expected_kwargs.append(value)
+    for token in tokens:
+        if token['type'] == 'literal':
+            print >>out, '\t\tout.write(%r)' % token['value']
+        elif token['type'] == 'sub':
+            print >>out, '\t\tself.substitute(%r, out)' % token['value']
+            expected_kwargs.add(token['value'])
     print >>out, '\t\treturn out'
     print >>out
-    print >>out, '\texpected_kwargs = %r' % (tuple(expected_kwargs),)
+    print >>out, '\texpected_kwargs = %r' % (expected_kwargs,)
 
     return out
 
@@ -58,30 +69,26 @@ def parse(data):
     position = 0
     for match in sub_regex.finditer(data):
         if match.start() > position:
-            yield ('literal', data[position:match.start()])
-        yield ('sub', match.group('name'))
+            yield dict(type='literal', value=data[position:match.start()])
+        yield dict(type='sub', value=match.group('name'))
         position = match.end()
 
     if position < len(data) - 1:
-        yield ('literal', data[position:])
+        yield dict(type='literal', value=data[position:])
 
 
 if __name__ == '__main__':
-    import optparse
     import os
     import sys
 
 
-    optparser = optparse.OptionParser()
-    optparser.add_option('-t', '--template', dest='template', help='Use a specific template class.', default=None)
-    optparser.add_option('-i', '--import', dest='imports', action='append', metavar='IMPORT', help='Import a path in the module. Multiple imports are allowed.')
-    (options, args) = optparser.parse_args()
-
-    def gen_tokens():
+    args = sys.argv[1:]
+    def gen_classes():
         for fname in args:
-            class_name = os.path.basename(fname).rsplit('.', 1)[0].capitalize()
-            data = open(fname).read()
+            base, ext = os.path.basename(fname).rsplit('.', 1)
+            class_name = base.capitalize()
+            f = open(fname)
+            data = f.read()
             tokens = parse(data)
-            yield (class_name, tokens)
-    classes = dict(gen_tokens())
-    compile_module(names=classes, out=sys.stdout, base=options.template, imports=options.imports)
+            yield dict(class_name=class_name, template_type=ext, tokens=tokens)
+    compile_module(classes=gen_classes(), out=sys.stdout)

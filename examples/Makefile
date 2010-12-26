@@ -7,7 +7,7 @@ all: templates.py
 
 
 templates.py: $(example_templates)
-	$(python) ../veritmpl/compiler.py -t 'veritmpl.html.HTMLTemplate' $(example_templates) >$@
+	$(python) ../veritmpl/compiler.py $(example_templates) >$@
 
 
 clean:
